@@ -28,11 +28,23 @@ const byte echoPin = 3;
 UltraSonicDistanceSensor distanceSensor(triggerPin, echoPin);
 
 //Testing only
-const unsigned int testing_time = 10000;
+const unsigned int testing_time = 1000;
 
 int rng(int limit)
 {
   return random() % (limit + 1);
+}
+
+void printSomeInfo()
+{
+  Serial.print("Motor A is moving = ");
+  Serial.print(motors.isMovingA() ? "YES" : "NO");
+  Serial.print(" at speed = ");
+  Serial.println(motors.getSpeedA());
+  Serial.print("Motor B is moving = ");
+  Serial.print(motors.isMovingB() ? "YES" : "NO");
+  Serial.print(" at speed = ");
+  Serial.println(motors.getSpeedB());
 }
 
 void setup() {
@@ -46,7 +58,7 @@ void setup() {
     //do nothing
   }
   //Initialize motors
-  motors.setSpeed(100); //Remember it's a 0-255 range
+  motors.setSpeed(255); //Remember it's a 0-255 range
   motors.forward();
   delay(testing_time);
   //Initialize servos (for some reason, the person who made this library made it so that servos can oly attach to pins 9 and 10. Fucking dickhead)
@@ -58,13 +70,17 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  motors.setSpeedA(rng(255));
-  motors.setSpeedB(rng(255));
-  left_servo.write(rng(180));
-  right_servo.write(rng(180));
+  motors.setSpeed(255);
+  motors.forward();
+  left_servo.write(0);
+  right_servo.write(0);
   if(distanceSensor.measureDistanceCm() < 5)
   {
-    motors.backward();
+    //motors.backward();
   }
+  delay(testing_time);
+  left_servo.write(180);
+  right_servo.write(180);
+  printSomeInfo();
   delay(testing_time);
 }

@@ -7,10 +7,10 @@ iterator = int(0)
 
 def add_new_step():
     global iterator
+    
     frm_step_hold.rowconfigure(iterator, weight=1, minsize=110)
     frm_substep = tk.Frame(master=frm_step_hold, width=500, height=100, bg="orange")
-    frm_substep.columnconfigure(0, weight=1, minsize=20)
-    frm_substep.columnconfigure([1, 2, 3], weight=10, minsize=50)
+    frm_substep.columnconfigure([0, 1, 2, 3], weight=10, minsize=50)
     frm_substep.rowconfigure([0, 1], weight=1, minsize=50)
     frm_substep.grid(column=0, row=iterator, sticky="nwe", padx=padding, pady=padding)
     iterator+=1
@@ -37,27 +37,11 @@ def add_new_step():
     )
     ent_sub_speed.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     
-    #angle
-    frm_sub_angle = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
-    frm_sub_angle.columnconfigure(1, weight=1, minsize=20)
-    frm_sub_angle.rowconfigure([0], weight=1, minsize=20)
-    frm_sub_angle.grid(column=2, row=0, sticky="nwse", padx=padding, pady=padding)
-    lbl_sub_angle = tk.Label(
-        master=frm_sub_angle,
-        text='Angle:'
-    )
-    lbl_sub_angle.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
-    ent_sub_angle = tk.Label(
-        master=frm_sub_angle,
-        text=ent_angle.get()
-    )
-    ent_sub_angle.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
-    
     #time
     frm_sub_time = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
     frm_sub_time.columnconfigure(1, weight=1, minsize=20)
     frm_sub_time.rowconfigure([0], weight=1, minsize=20)
-    frm_sub_time.grid(column=3, row=0, sticky="nwse", padx=padding, pady=padding)
+    frm_sub_time.grid(column=2, row=0, sticky="nwse", padx=padding, pady=padding)
     lbl_sub_time = tk.Label(
         master=frm_sub_time,
         text='Time:'
@@ -69,6 +53,82 @@ def add_new_step():
     )
     ent_sub_time.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     
+    #angle
+    frm_sub_angle = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
+    frm_sub_angle.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_angle.rowconfigure([0], weight=1, minsize=20)
+    frm_sub_angle.grid(column=3, row=0, sticky="nwse", padx=padding, pady=padding)
+    lbl_sub_angle = tk.Label(
+        master=frm_sub_angle,
+        text='Angle:'
+    )
+    lbl_sub_angle.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
+    ent_sub_angle = tk.Label(
+        master=frm_sub_angle,
+        text=ent_angle.get()
+    )
+    ent_sub_angle.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
+    
+    #instruction
+    frm_sub_instruction = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
+    frm_sub_instruction.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_instruction.rowconfigure([0], weight=1, minsize=20)
+    frm_sub_instruction.grid(column=0, row=1, sticky="nwse", padx=padding, pady=padding)
+    ent_sub_instruction = tk.Label(
+        master=frm_sub_instruction,
+        text=current_instruction.get()
+    )
+    ent_sub_instruction.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
+    
+    listbox_movement.current()
+    
+    #target_angle
+    frm_sub_target_angle = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
+    frm_sub_target_angle.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_target_angle.rowconfigure([0], weight=1, minsize=20)
+    frm_sub_target_angle.grid(column=1, row=1, sticky="nwse", padx=padding, pady=padding)
+    lbl_sub_target_angle = tk.Label(
+        master=frm_sub_target_angle,
+        text='Target angle:'
+    )
+    lbl_sub_target_angle.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
+    ent_sub_target_angle = tk.Label(
+        master=frm_sub_target_angle,
+        text=ent_target_angle.get()
+    )
+    ent_sub_target_angle.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
+    
+    #frontal_movement
+    frm_sub_frontal_movement = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
+    frm_sub_frontal_movement.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_frontal_movement.rowconfigure([0], weight=1, minsize=20)
+    frm_sub_frontal_movement.grid(column=2, row=1, sticky="nwse", padx=padding, pady=padding)
+    lbl_sub_frontal_movement = tk.Label(
+        master=frm_sub_frontal_movement,
+        text='Frontal movement:'
+    )
+    lbl_sub_frontal_movement.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
+    ent_sub_frontal_movement = tk.Label(
+        master=frm_sub_frontal_movement,
+        text=ent_frontal_movement.get()
+    )
+    ent_sub_frontal_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
+    
+    #lateral_movement
+    frm_sub_lateral_movement = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
+    frm_sub_lateral_movement.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_lateral_movement.rowconfigure([0], weight=1, minsize=20)
+    frm_sub_lateral_movement.grid(column=3, row=1, sticky="nwse", padx=padding, pady=padding)
+    lbl_sub_lateral_movement = tk.Label(
+        master=frm_sub_lateral_movement,
+        text='Lateral movement:'
+    )
+    lbl_sub_lateral_movement.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
+    ent_sub_lateral_movement = tk.Label(
+        master=frm_sub_lateral_movement,
+        text=ent_lateral_movement.get()
+    )
+    ent_sub_lateral_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
 
 
 #Window et al
@@ -82,10 +142,12 @@ frm_step.columnconfigure([0, 1, 2, 3], weight=1, minsize=50)
 frm_step.rowconfigure([0, 1], weight=1, minsize=50)
 frm_step.grid(column=0, row=0, sticky="nwe", padx=padding, pady=padding)
 
+
+current_instruction = tk.StringVar()
 listbox_movement = ttk.Combobox(
     master=frm_step,
     width=10,
-    textvariable = tk.StringVar()
+    textvariable = current_instruction,
 )
 
 listbox_movement['values'] = (

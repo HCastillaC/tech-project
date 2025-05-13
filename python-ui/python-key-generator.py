@@ -1,9 +1,13 @@
 import tkinter as tk
+import math as mt
 from tkinter import ttk 
 
 #Important things
 padding = 5
 iterator = int(0)
+lenght_rear = 0.3 #calculate
+lenght_front = 0.2 #calculate
+time_step = 0.01
 
 def add_new_step():
     global iterator
@@ -130,6 +134,29 @@ def add_new_step():
     )
     ent_sub_lateral_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
 
+def solve_time():
+    global time_step
+    
+    solve_target_angle = 0
+    solve_speed = float(ent_speed.get())
+    solve_delta = float(ent_angle.get())
+    solve_beta = mt.atan((lenght_rear / (lenght_rear + lenght_front)) + mt.tan(solve_delta * mt.pi / 180)) * 180 / mt.pi
+    solve_frontal_movement = 0
+    solve_lateral_movement = 0
+    solve_time = 0
+    while mt.fabs(solve_target_angle) < mt.fabs(float(ent_target_angle.get())):
+        solve_frontal_movement += solve_speed * mt.cos((solve_target_angle + solve_beta) * mt.pi / 180) * time_step
+        solve_lateral_movement += solve_speed * mt.sin((solve_target_angle + solve_beta) * mt.pi / 180) * time_step
+        solve_target_angle += (solve_speed / (lenght_rear + lenght_front)) * mt.cos(solve_beta * mt.pi / 180) * mt.tan(solve_delta * mt.pi / 180) * time_step
+        solve_time+=time_step
+        print(mt.cos(solve_beta * mt.pi / 180))
+    
+    ent_time.delete(0, tk.END)
+    ent_time.insert(0, str(solve_time))
+    ent_frontal_movement.delete(0, tk.END)
+    ent_frontal_movement.insert(0, str(solve_frontal_movement))
+    ent_lateral_movement.delete(0, tk.END)
+    ent_lateral_movement.insert(0, str(solve_lateral_movement))
 
 #Window et al
 window = tk.Tk()
@@ -182,7 +209,7 @@ frm_time.rowconfigure([0], weight=1, minsize=20)
 frm_time.grid(column=2, row=0, sticky="nwse", padx=padding, pady=padding)
 lbl_time = tk.Label(
     master=frm_time,
-    text='Time(ms):'
+    text='Time(s):'
 )
 lbl_time.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
 ent_time = tk.Entry(
@@ -209,27 +236,46 @@ ent_angle.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
 
 #Tools
 frm_action = tk.Frame(master=frm_step, width=70, height=70, bg="brown")
-frm_action.columnconfigure([0, 1], weight=1)
+frm_action.columnconfigure([0, 1, 2, 3], weight=1)
 frm_action.grid(column=0, row=1, sticky="nwse", padx=padding, pady=padding)
 btn_add = tk.Button(
     master=frm_action,
     text="+",
-    width=10,
+    width=3,
     height=1,
     bg="green",
     fg="black",
     command=add_new_step
 )
 btn_add.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
-btn_solve = tk.Button(
+btn_solve_time = tk.Button(
     master=frm_action,
-    text="/",
-    width=10,
+    text="t",
+    width=3,
+    height=1,
+    bg="green",
+    fg="black",
+    command=solve_time
+)
+btn_solve_time.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
+btn_solve_target = tk.Button(
+    master=frm_action,
+    text="T",
+    width=3,
     height=1,
     bg="green",
     fg="black",
 )
-btn_solve.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
+btn_solve_target.grid(column=2, row=0, sticky="nwse", padx=padding, pady=padding)
+btn_solve_angle = tk.Button(
+    master=frm_action,
+    text="a",
+    width=3,
+    height=1,
+    bg="green",
+    fg="black",
+)
+btn_solve_angle.grid(column=3, row=0, sticky="nwse", padx=padding, pady=padding)
 
 
 #target_angle

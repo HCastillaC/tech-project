@@ -1,12 +1,12 @@
 import tkinter as tk
 import math as mt
-from tkinter import ttk 
+from tkinter import ttk
 
 #Important things
 padding = 5
 iterator = int(0)
-lenght_rear = 0.095 #calculate
-lenght_front = 0.9 #calculate
+lenght_rear = 0.095 #calculate 0.095
+lenght_front = 0.09 #calculate 0.09
 time_step = 0.01
 
 def add_new_step():
@@ -135,49 +135,178 @@ def add_new_step():
     ent_sub_lateral_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
 
 def solve_time():
-    global time_step
+    theta_f_deg = float(ent_target_angle.get()) # desired final heading angle change
+    delta_deg = float(ent_angle.get())          # steering angle in degrees
+    v = float(ent_speed.get())                  # constant speed in m/s
+    L = lenght_front + lenght_rear              # wheelbase in meters
+    L_r = lenght_rear                           # distance from rear axle to CoM
+
+    # Convert angles to radians
+    theta_f = mt.radians(theta_f_deg)
+    delta = mt.radians(delta_deg)
+
+    # Compute β
+    beta = mt.atan((L_r / L) * mt.tan(delta))
+
+    # Compute time
+    t = theta_f / ((v / L) * mt.cos(beta) * mt.tan(delta))
     
-    solve_target_angle = 0
-    solve_speed = float(ent_speed.get())
-    solve_delta = float(ent_angle.get())
-    solve_beta = mt.atan((lenght_rear / (lenght_rear + lenght_front)) * mt.tan(solve_delta * mt.pi / 180)) * 180 / mt.pi
-    solve_frontal_movement = 0
-    solve_lateral_movement = 0
-    solve_time = 0
-    while mt.fabs(solve_target_angle) < mt.fabs(float(ent_target_angle.get())):
-        solve_frontal_movement += solve_speed * mt.cos((solve_target_angle + solve_beta) * mt.pi / 180) * time_step
-        solve_lateral_movement += solve_speed * mt.sin((solve_target_angle + solve_beta) * mt.pi / 180) * time_step
-        solve_target_angle += (solve_speed / (lenght_rear + lenght_front)) * mt.cos(solve_beta * mt.pi / 180) * mt.tan(solve_delta * mt.pi / 180) * time_step
-        solve_time+=time_step
+    # Compute yaw rate ω
+    omega = (v / L) * mt.cos(beta) * mt.tan(delta)
+
+    # Compute final heading angle
+    theta_f = omega * t
+
+    # Compute displacement in global frame
+    dx = (v / omega) * (mt.sin(theta_f))         # since sin(θ₀) = 0
+    dy = (v / omega) * (1 - mt.cos(theta_f))     # since cos(θ₀) = 1
+
+    # Frontal = dx, Lateral = dy when θ₀ = 0
+    frontal = dx
+    lateral = dy
     
     ent_time.delete(0, tk.END)
-    ent_time.insert(0, str(solve_time))
+    ent_time.insert(0, str(t))
     ent_frontal_movement.delete(0, tk.END)
-    ent_frontal_movement.insert(0, str(solve_frontal_movement))
+    ent_frontal_movement.insert(0, str(frontal))
     ent_lateral_movement.delete(0, tk.END)
-    ent_lateral_movement.insert(0, str(solve_lateral_movement))
+    ent_lateral_movement.insert(0, str(lateral))
     
 def solve_target_angle():
-    global time_step
-    psi = 0
-    speed = float(ent_speed.get())
-    delta = float(ent_angle.get())
-    beta = mt.atan((lenght_rear / (lenght_rear + lenght_front)) * mt.tan(delta * mt.pi / 180)) * 180 / mt.pi 
-    frontal_movement = 0
-    lateral_movement = 0
-    time = 0
-    while mt.fabs(time) < mt.fabs(float(ent_time.get())):
-        frontal_movement += speed * mt.cos((psi + beta) * mt.pi / 180) * time_step
-        lateral_movement += speed * mt.sin((psi + beta) * mt.pi / 180) * time_step
-        psi += (speed / (lenght_rear + lenght_front)) * mt.cos(beta * mt.pi / 180) * mt.tan(delta * mt.pi / 180) * time_step
-        time += time_step
+    t = float(ent_time.get())          # seconds
+    delta_deg = float(ent_angle.get()) # steering angle in degrees
+    v = float(ent_speed.get())         # constant speed in m/s
+    L = lenght_front + lenght_rear     # wheelbase in meters
+    L_r = lenght_rear                  # distance from rear axle to CoM
+
+    # Convert steering angle to radians
+    delta = mt.radians(delta_deg)
+
+    # Compute slip angle β
+    beta = mt.atan((L_r / L) * mt.tan(delta))
+
+    # Compute final heading change (yaw)
+    theta_f = (v / L) * mt.cos(beta) * mt.tan(delta) * t
+
+    # Convert result to degrees
+    theta_f_deg = mt.degrees(theta_f)
+    
+    # Compute yaw rate ω
+    omega = (v / L) * mt.cos(beta) * mt.tan(delta)
+
+    # Compute final heading angle
+    theta_f = omega * t
+
+    # Compute displacement in global frame
+    dx = (v / omega) * (mt.sin(theta_f))         # since sin(θ₀) = 0
+    dy = (v / omega) * (1 - mt.cos(theta_f))     # since cos(θ₀) = 1
+
+    # Frontal = dx, Lateral = dy when θ₀ = 0
+    frontal = dx
+    lateral = dy
     
     ent_target_angle.delete(0, tk.END)
-    ent_target_angle.insert(0, str(psi))
+    ent_target_angle.insert(0, str(theta_f_deg))
     ent_frontal_movement.delete(0, tk.END)
-    ent_frontal_movement.insert(0, str(frontal_movement))
+    ent_frontal_movement.insert(0, str(frontal))
     ent_lateral_movement.delete(0, tk.END)
-    ent_lateral_movement.insert(0, str(lateral_movement))
+    ent_lateral_movement.insert(0, str(lateral))
+    
+def solve_angle():
+    # Known values
+    theta_f_deg = float(ent_target_angle.get())  # desired heading change (degrees)
+    t = float(ent_time.get())                    # time in seconds
+    v = float(ent_speed.get())                   # velocity (m/s)
+    L = float(lenght_front + lenght_rear)        # wheelbase (m)
+    L_r = lenght_rear                            # distance from rear axle to CoM (L/2)
+
+    # Convert final heading to radians
+    theta_f = mt.radians(theta_f_deg)
+
+    # Function to evaluate heading error for a given δ (in radians)
+    def heading_error(delta):
+        try:
+            beta = mt.atan((L_r / L) * mt.tan(delta))
+            omega = (v / L) * mt.cos(beta) * mt.tan(delta)
+            return omega * t - theta_f
+        except:
+            return float('inf')  # in case of division by zero or tan blowing up
+
+    # Bisection method parameters
+    delta_min = mt.radians(-45)  # lower bound in radians
+    delta_max = mt.radians(45)   # upper bound in radians
+    tolerance = 1e-6
+    max_iterations = 100
+
+    # Bisection loop
+    for _ in range(max_iterations):
+        delta_mid = (delta_min + delta_max) / 2
+        f_mid = heading_error(delta_mid)
+        f_min = heading_error(delta_min)
+
+        if abs(f_mid) < tolerance:
+            break
+
+        if f_min * f_mid < 0:
+            delta_max = delta_mid
+        else:
+            delta_min = delta_mid
+
+    # Convert result to degrees
+    delta_solution_deg = mt.degrees(delta_mid)
+    
+    # Compute yaw rate ω
+    beta = mt.atan((L_r / L) * mt.tan(delta_mid))
+    omega = (v / L) * mt.cos(beta) * mt.tan(delta_mid)
+
+    # Compute final heading angle
+    theta_f = omega * t
+
+    # Compute displacement in global frame
+    dx = (v / omega) * (mt.sin(theta_f))         # since sin(θ₀) = 0
+    dy = (v / omega) * (1 - mt.cos(theta_f))     # since cos(θ₀) = 1
+
+    # Frontal = dx, Lateral = dy when θ₀ = 0
+    frontal = dx
+    lateral = dy
+
+    ent_angle.delete(0, tk.END)
+    ent_angle.insert(0, str(delta_solution_deg))
+    ent_frontal_movement.delete(0, tk.END)
+    ent_frontal_movement.insert(0, str(frontal))
+    ent_lateral_movement.delete(0, tk.END)
+    ent_lateral_movement.insert(0, str(lateral))
+
+def solve_movement():
+    t = float(ent_time.get())          # seconds
+    delta_deg = float(ent_angle.get()) # steering angle in degrees
+    v = float(ent_speed.get())         # constant speed in m/s
+    L = lenght_front + lenght_rear     # wheelbase in meters
+    L_r = lenght_rear                  # distance from rear axle to CoM
+
+    delta = mt.radians(delta_deg)
+
+    # Compute slip angle β
+    beta = mt.atan((L_r / L) * mt.tan(delta))
+
+    # Compute yaw rate ω
+    omega = (v / L) * mt.cos(beta) * mt.tan(delta)
+
+    # Compute final heading angle
+    theta_f = omega * t
+
+    # Compute displacement in global frame
+    dx = (v / omega) * (mt.sin(theta_f))         # since sin(θ₀) = 0
+    dy = (v / omega) * (1 - mt.cos(theta_f))     # since cos(θ₀) = 1
+
+    # Frontal = dx, Lateral = dy when θ₀ = 0
+    frontal = dx
+    lateral = dy
+    
+    ent_frontal_movement.delete(0, tk.END)
+    ent_frontal_movement.insert(0, str(frontal))
+    ent_lateral_movement.delete(0, tk.END)
+    ent_lateral_movement.insert(0, str(lateral))
 
 #Window et al
 window = tk.Tk()
@@ -199,10 +328,8 @@ listbox_movement = ttk.Combobox(
 )
 
 listbox_movement['values'] = (
-    'Fowards',
-    'Backwards',
-    'Left',
-    'Right'
+    'Turns',
+    'Backwards'
 )
 
 listbox_movement.grid(column=0, row=0, sticky="news", padx=padding, pady=padding)
@@ -257,12 +384,12 @@ ent_angle.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
 
 #Tools
 frm_action = tk.Frame(master=frm_step, width=70, height=70, bg="brown")
-frm_action.columnconfigure([0, 1, 2, 3], weight=1)
+frm_action.columnconfigure([0, 1, 2, 3, 4], weight=1)
 frm_action.grid(column=0, row=1, sticky="nwse", padx=padding, pady=padding)
 btn_add = tk.Button(
     master=frm_action,
     text="+",
-    width=3,
+    width=2,
     height=1,
     bg="green",
     fg="black",
@@ -272,7 +399,7 @@ btn_add.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
 btn_solve_time = tk.Button(
     master=frm_action,
     text="t",
-    width=3,
+    width=2,
     height=1,
     bg="green",
     fg="black",
@@ -282,7 +409,7 @@ btn_solve_time.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
 btn_solve_target = tk.Button(
     master=frm_action,
     text="T",
-    width=3,
+    width=2,
     height=1,
     bg="green",
     fg="black",
@@ -292,12 +419,23 @@ btn_solve_target.grid(column=2, row=0, sticky="nwse", padx=padding, pady=padding
 btn_solve_angle = tk.Button(
     master=frm_action,
     text="a",
-    width=3,
+    width=2,
     height=1,
     bg="green",
     fg="black",
+    command=solve_angle
 )
 btn_solve_angle.grid(column=3, row=0, sticky="nwse", padx=padding, pady=padding)
+btn_solve_movement = tk.Button(
+    master=frm_action,
+    text="m",
+    width=2,
+    height=1,
+    bg="green",
+    fg="black",
+    command=solve_movement
+)
+btn_solve_movement.grid(column=4, row=0, sticky="nwse", padx=padding, pady=padding)
 
 
 #target_angle

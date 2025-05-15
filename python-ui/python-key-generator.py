@@ -1,7 +1,6 @@
 import tkinter as tk
 import math as mt
 from tkinter import ttk
-import struct
 
 #Important things
 padding = 5
@@ -218,7 +217,9 @@ def solve_angle():
     v = float(ent_speed.get())                   # velocity (m/s)
     L = float(lenght_front + lenght_rear)        # wheelbase (m)
     L_r = lenght_rear                            # distance from rear axle to CoM (L/2)
-    
+
+    # Convert final heading to radians
+    theta_f = mt.radians(theta_f_deg)
     if abs(theta_f) < 1e-6:
         ent_angle.delete(0, tk.END)
         ent_angle.insert(0, "0.0")
@@ -227,10 +228,7 @@ def solve_angle():
         ent_lateral_movement.delete(0, tk.END)
         ent_lateral_movement.insert(0, "0.0")
         return
-
-    # Convert final heading to radians
-    theta_f = mt.radians(theta_f_deg)
-
+    
     # Function to evaluate heading error for a given δ (in radians)
     def heading_error(delta):
         try:
@@ -312,6 +310,7 @@ def solve_movement():
 
 #Window et al
 window = tk.Tk()
+window.title('Path Computer')
 window.columnconfigure(0, weight=1, minsize=20)
 window.rowconfigure(1, weight=1, minsize=20)
 
@@ -412,7 +411,7 @@ btn_solve_time = tk.Button(
 btn_solve_time.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
 btn_solve_target = tk.Button(
     master=frm_action,
-    text="T",
+    text="ψ",
     width=2,
     height=1,
     bg="green",
@@ -422,7 +421,7 @@ btn_solve_target = tk.Button(
 btn_solve_target.grid(column=2, row=0, sticky="nwse", padx=padding, pady=padding)
 btn_solve_angle = tk.Button(
     master=frm_action,
-    text="a",
+    text="δ",
     width=2,
     height=1,
     bg="green",
@@ -432,7 +431,7 @@ btn_solve_angle = tk.Button(
 btn_solve_angle.grid(column=3, row=0, sticky="nwse", padx=padding, pady=padding)
 btn_solve_movement = tk.Button(
     master=frm_action,
-    text="m",
+    text="∆s",
     width=2,
     height=1,
     bg="green",

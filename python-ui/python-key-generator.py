@@ -149,7 +149,6 @@ def solve_time():
         solve_lateral_movement += solve_speed * mt.sin((solve_target_angle + solve_beta) * mt.pi / 180) * time_step
         solve_target_angle += (solve_speed / (lenght_rear + lenght_front)) * mt.cos(solve_beta * mt.pi / 180) * mt.tan(solve_delta * mt.pi / 180) * time_step
         solve_time+=time_step
-        print(mt.cos(solve_beta * mt.pi / 180))
     
     ent_time.delete(0, tk.END)
     ent_time.insert(0, str(solve_time))
@@ -157,6 +156,28 @@ def solve_time():
     ent_frontal_movement.insert(0, str(solve_frontal_movement))
     ent_lateral_movement.delete(0, tk.END)
     ent_lateral_movement.insert(0, str(solve_lateral_movement))
+    
+def solve_target_angle():
+    global time_step
+    psi = 0
+    speed = float(ent_speed.get())
+    delta = float(ent_angle.get())
+    beta = mt.atan((lenght_rear / (lenght_rear + lenght_front)) * mt.tan(delta * mt.pi / 180)) * 180 / mt.pi 
+    frontal_movement = 0
+    lateral_movement = 0
+    time = 0
+    while mt.fabs(time) < mt.fabs(float(ent_time.get())):
+        frontal_movement += speed * mt.cos((psi + beta) * mt.pi / 180) * time_step
+        lateral_movement += speed * mt.sin((psi + beta) * mt.pi / 180) * time_step
+        psi += (speed / (lenght_rear + lenght_front)) * mt.cos(beta * mt.pi / 180) * mt.tan(delta * mt.pi / 180) * time_step
+        time += time_step
+    
+    ent_target_angle.delete(0, tk.END)
+    ent_target_angle.insert(0, str(psi))
+    ent_frontal_movement.delete(0, tk.END)
+    ent_frontal_movement.insert(0, str(frontal_movement))
+    ent_lateral_movement.delete(0, tk.END)
+    ent_lateral_movement.insert(0, str(lateral_movement))
 
 #Window et al
 window = tk.Tk()
@@ -265,6 +286,7 @@ btn_solve_target = tk.Button(
     height=1,
     bg="green",
     fg="black",
+    command=solve_target_angle
 )
 btn_solve_target.grid(column=2, row=0, sticky="nwse", padx=padding, pady=padding)
 btn_solve_angle = tk.Button(

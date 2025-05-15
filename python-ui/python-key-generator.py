@@ -1,6 +1,7 @@
 import tkinter as tk
 import math as mt
 from tkinter import ttk
+import struct
 
 #Important things
 padding = 5
@@ -8,6 +9,7 @@ iterator = int(0)
 lenght_rear = 0.095 #calculate 0.095
 lenght_front = 0.09 #calculate 0.09
 time_step = 0.01
+instruction = ''
 
 def add_new_step():
     global iterator
@@ -133,84 +135,81 @@ def add_new_step():
         text=ent_lateral_movement.get()
     )
     ent_sub_lateral_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
+    
+    global instruction
+    instruction += listbox_movement.get()[0] + '-'
+    instruction += ent_speed.get() + '-'
+    instruction += ent_angle.get() + '-'
+    instruction += ent_time.get() + '/'
+    
+    ent_output.insert(tk.END, instruction)
+    instruction = ''
+    
+        
 
 def solve_time():
-    theta_f_deg = float(ent_target_angle.get()) # desired final heading angle change
-    delta_deg = float(ent_angle.get())          # steering angle in degrees
-    v = float(ent_speed.get())                  # constant speed in m/s
-    L = lenght_front + lenght_rear              # wheelbase in meters
-    L_r = lenght_rear                           # distance from rear axle to CoM
+    theta_f_deg = float(ent_target_angle.get())
+    delta_deg = float(ent_angle.get())
+    v = float(ent_speed.get())
+    L = lenght_front + lenght_rear
+    L_r = lenght_rear
 
-    # Convert angles to radians
     theta_f = mt.radians(theta_f_deg)
     delta = mt.radians(delta_deg)
 
-    # Compute β
-    beta = mt.atan((L_r / L) * mt.tan(delta))
+    if abs(delta) < 1e-6:  # Handle angle ≈ 0
+        if abs(theta_f) < 1e-6:
+            t = theta_f / v if v != 0 else 0
+            dx = v * t
+            dy = 0
+        else:
+            t = 0
+            dx = 0
+            dy = 0
+    else:
+        beta = mt.atan((L_r / L) * mt.tan(delta))
+        omega = (v / L) * mt.cos(beta) * mt.tan(delta)
+        t = theta_f / omega if omega != 0 else 0
+        theta_f = omega * t
+        dx = (v / omega) * mt.sin(theta_f) if omega != 0 else v * t
+        dy = (v / omega) * (1 - mt.cos(theta_f)) if omega != 0 else 0
 
-    # Compute time
-    t = theta_f / ((v / L) * mt.cos(beta) * mt.tan(delta))
-    
-    # Compute yaw rate ω
-    omega = (v / L) * mt.cos(beta) * mt.tan(delta)
-
-    # Compute final heading angle
-    theta_f = omega * t
-
-    # Compute displacement in global frame
-    dx = (v / omega) * (mt.sin(theta_f))         # since sin(θ₀) = 0
-    dy = (v / omega) * (1 - mt.cos(theta_f))     # since cos(θ₀) = 1
-
-    # Frontal = dx, Lateral = dy when θ₀ = 0
-    frontal = dx
-    lateral = dy
-    
     ent_time.delete(0, tk.END)
     ent_time.insert(0, str(t))
     ent_frontal_movement.delete(0, tk.END)
-    ent_frontal_movement.insert(0, str(frontal))
+    ent_frontal_movement.insert(0, str(dx))
     ent_lateral_movement.delete(0, tk.END)
-    ent_lateral_movement.insert(0, str(lateral))
+    ent_lateral_movement.insert(0, str(dy))
+
     
 def solve_target_angle():
-    t = float(ent_time.get())          # seconds
-    delta_deg = float(ent_angle.get()) # steering angle in degrees
-    v = float(ent_speed.get())         # constant speed in m/s
-    L = lenght_front + lenght_rear     # wheelbase in meters
-    L_r = lenght_rear                  # distance from rear axle to CoM
+    t = float(ent_time.get())
+    delta_deg = float(ent_angle.get())
+    v = float(ent_speed.get())
+    L = lenght_front + lenght_rear
+    L_r = lenght_rear
 
-    # Convert steering angle to radians
     delta = mt.radians(delta_deg)
 
-    # Compute slip angle β
-    beta = mt.atan((L_r / L) * mt.tan(delta))
+    if abs(delta) < 1e-6:
+        theta_f_deg = 0
+        dx = v * t
+        dy = 0
+    else:
+        beta = mt.atan((L_r / L) * mt.tan(delta))
+        omega = (v / L) * mt.cos(beta) * mt.tan(delta)
+        theta_f = omega * t
+        theta_f_deg = mt.degrees(theta_f)
+        dx = (v / omega) * mt.sin(theta_f) if omega != 0 else v * t
+        dy = (v / omega) * (1 - mt.cos(theta_f)) if omega != 0 else 0
 
-    # Compute final heading change (yaw)
-    theta_f = (v / L) * mt.cos(beta) * mt.tan(delta) * t
-
-    # Convert result to degrees
-    theta_f_deg = mt.degrees(theta_f)
-    
-    # Compute yaw rate ω
-    omega = (v / L) * mt.cos(beta) * mt.tan(delta)
-
-    # Compute final heading angle
-    theta_f = omega * t
-
-    # Compute displacement in global frame
-    dx = (v / omega) * (mt.sin(theta_f))         # since sin(θ₀) = 0
-    dy = (v / omega) * (1 - mt.cos(theta_f))     # since cos(θ₀) = 1
-
-    # Frontal = dx, Lateral = dy when θ₀ = 0
-    frontal = dx
-    lateral = dy
-    
     ent_target_angle.delete(0, tk.END)
     ent_target_angle.insert(0, str(theta_f_deg))
     ent_frontal_movement.delete(0, tk.END)
-    ent_frontal_movement.insert(0, str(frontal))
+    ent_frontal_movement.insert(0, str(dx))
     ent_lateral_movement.delete(0, tk.END)
-    ent_lateral_movement.insert(0, str(lateral))
+    ent_lateral_movement.insert(0, str(dy))
+
     
 def solve_angle():
     # Known values
@@ -219,6 +218,15 @@ def solve_angle():
     v = float(ent_speed.get())                   # velocity (m/s)
     L = float(lenght_front + lenght_rear)        # wheelbase (m)
     L_r = lenght_rear                            # distance from rear axle to CoM (L/2)
+    
+    if abs(theta_f) < 1e-6:
+        ent_angle.delete(0, tk.END)
+        ent_angle.insert(0, "0.0")
+        ent_frontal_movement.delete(0, tk.END)
+        ent_frontal_movement.insert(0, str(v * t))
+        ent_lateral_movement.delete(0, tk.END)
+        ent_lateral_movement.insert(0, "0.0")
+        return
 
     # Convert final heading to radians
     theta_f = mt.radians(theta_f_deg)
@@ -278,35 +286,29 @@ def solve_angle():
     ent_lateral_movement.insert(0, str(lateral))
 
 def solve_movement():
-    t = float(ent_time.get())          # seconds
-    delta_deg = float(ent_angle.get()) # steering angle in degrees
-    v = float(ent_speed.get())         # constant speed in m/s
-    L = lenght_front + lenght_rear     # wheelbase in meters
-    L_r = lenght_rear                  # distance from rear axle to CoM
+    t = float(ent_time.get())
+    delta_deg = float(ent_angle.get())
+    v = float(ent_speed.get())
+    L = lenght_front + lenght_rear
+    L_r = lenght_rear
 
     delta = mt.radians(delta_deg)
 
-    # Compute slip angle β
-    beta = mt.atan((L_r / L) * mt.tan(delta))
+    if abs(delta) < 1e-6:
+        dx = v * t
+        dy = 0
+    else:
+        beta = mt.atan((L_r / L) * mt.tan(delta))
+        omega = (v / L) * mt.cos(beta) * mt.tan(delta)
+        theta_f = omega * t
+        dx = (v / omega) * mt.sin(theta_f) if omega != 0 else v * t
+        dy = (v / omega) * (1 - mt.cos(theta_f)) if omega != 0 else 0
 
-    # Compute yaw rate ω
-    omega = (v / L) * mt.cos(beta) * mt.tan(delta)
-
-    # Compute final heading angle
-    theta_f = omega * t
-
-    # Compute displacement in global frame
-    dx = (v / omega) * (mt.sin(theta_f))         # since sin(θ₀) = 0
-    dy = (v / omega) * (1 - mt.cos(theta_f))     # since cos(θ₀) = 1
-
-    # Frontal = dx, Lateral = dy when θ₀ = 0
-    frontal = dx
-    lateral = dy
-    
     ent_frontal_movement.delete(0, tk.END)
-    ent_frontal_movement.insert(0, str(frontal))
+    ent_frontal_movement.insert(0, str(dx))
     ent_lateral_movement.delete(0, tk.END)
-    ent_lateral_movement.insert(0, str(lateral))
+    ent_lateral_movement.insert(0, str(dy))
+
 
 #Window et al
 window = tk.Tk()
@@ -328,8 +330,10 @@ listbox_movement = ttk.Combobox(
 )
 
 listbox_movement['values'] = (
-    'Turns',
-    'Backwards'
+    'Forwards',
+    'Backwards',
+    'Left',
+    'Right'
 )
 
 listbox_movement.grid(column=0, row=0, sticky="news", padx=padding, pady=padding)
@@ -488,28 +492,55 @@ ent_lateral_movement = tk.Entry(
 )
 ent_lateral_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
 
-#Instruction info
-frm_step_hold = tk.Frame(master=window, width=1080, height=720, bg="red")
-frm_step_hold.columnconfigure([0], weight=1, minsize=200)
-frm_step_hold.grid(column=0, row=1, sticky="nsew", padx=padding, pady=padding)
+#Instruction info# Replace your current frm_step_hold definition with this scrollable setup:
 
-#Verify and add frame
-frm_solve = tk.Frame(master=window, width=200, height=50, bg="blue")
-frm_solve.columnconfigure([0], weight=1, minsize=20)
-frm_solve.grid(column=0, row=2, sticky="nsew", padx=padding, pady=padding)
+# Create a canvas to hold the scrollable frame
+canvas = tk.Canvas(master=window, width=720, height=480, bg="red")
+canvas.grid(column=0, row=1, sticky="nsew", padx=padding, pady=padding)
 
-btn_compute = tk.Button(
-    master=frm_solve,
-    text="Compute!",
-    width=10,
-    height=1,
-    bg="green",
-    fg="black",
-)
-btn_compute.grid(column=0, row=0, sticky="", padx=padding, pady=padding)
+# Add a vertical scrollbar linked to the canvas
+scrollbar = ttk.Scrollbar(master=window, orient="vertical", command=canvas.yview)
+scrollbar.grid(column=1, row=1, sticky="ns")
+
+canvas.configure(yscrollcommand=scrollbar.set)
+
+# Create the frame that will contain the steps inside the canvas
+frm_step_hold = tk.Frame(master=canvas, bg="red")
+frm_step_hold.columnconfigure(0, weight=1, minsize=200)
+
+# Create a window inside the canvas to hold frm_step_hold
+canvas_frame = canvas.create_window((0, 0), window=frm_step_hold, anchor="nw")
+
+# Update scrollregion when frm_step_hold size changes
+def on_frame_configure(event):
+    canvas.configure(scrollregion=canvas.bbox("all"))
+
+frm_step_hold.bind("<Configure>", on_frame_configure)
+
+# Bind mousewheel scrolling to canvas
+def _on_mousewheel(event):
+    # For Windows and MacOS
+    if event.delta:
+        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    # For Linux (event.num 4 is scroll up, 5 is scroll down)
+    elif event.num == 4:
+        canvas.yview_scroll(-1, "units")
+    elif event.num == 5:
+        canvas.yview_scroll(1, "units")
+
+canvas.bind_all("<MouseWheel>", _on_mousewheel)  # Windows and MacOS
+canvas.bind_all("<Button-4>", _on_mousewheel)    # Linux scroll up
+canvas.bind_all("<Button-5>", _on_mousewheel)    # Linux scroll down
 
 #Output frame
 frm_solve = tk.Frame(master=window, width=200, height=50, bg="cyan")
 frm_solve.grid(column=0, row=3, sticky="nsew", padx=padding, pady=padding)
+frm_solve.columnconfigure([0], weight=1, minsize=20)
+frm_solve.rowconfigure([0], weight=1, minsize=20)
+ent_output = tk.Entry(
+    master=frm_solve,
+    text=instruction
+)
+ent_output.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
 
 window.mainloop()

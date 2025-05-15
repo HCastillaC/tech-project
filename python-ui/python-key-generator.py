@@ -5,8 +5,8 @@ from tkinter import ttk
 #Important things
 padding = 5
 iterator = int(0)
-lenght_rear = 0.3 #calculate
-lenght_front = 0.2 #calculate
+lenght_rear = 0.095 #calculate
+lenght_front = 0.9 #calculate
 time_step = 0.01
 
 def add_new_step():
@@ -140,7 +140,7 @@ def solve_time():
     solve_target_angle = 0
     solve_speed = float(ent_speed.get())
     solve_delta = float(ent_angle.get())
-    solve_beta = mt.atan((lenght_rear / (lenght_rear + lenght_front)) + mt.tan(solve_delta * mt.pi / 180)) * 180 / mt.pi
+    solve_beta = mt.atan((lenght_rear / (lenght_rear + lenght_front)) * mt.tan(solve_delta * mt.pi / 180)) * 180 / mt.pi
     solve_frontal_movement = 0
     solve_lateral_movement = 0
     solve_time = 0

@@ -39,7 +39,7 @@ def add_new_step():
     lbl_sub_speed.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
     ent_sub_speed = tk.Label(
         master=frm_sub_speed,
-        text=ent_speed.get()
+        text="{:.4f}".format(float(ent_speed.get()))
     )
     ent_sub_speed.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     
@@ -55,7 +55,7 @@ def add_new_step():
     lbl_sub_time.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
     ent_sub_time = tk.Label(
         master=frm_sub_time,
-        text=ent_time.get()
+        text="{:.4f}".format(float(ent_time.get()))
     )
     ent_sub_time.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     
@@ -71,13 +71,13 @@ def add_new_step():
     lbl_sub_angle.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
     ent_sub_angle = tk.Label(
         master=frm_sub_angle,
-        text=ent_angle.get()
+        text="{:.4f}".format(float(ent_angle.get()))
     )
     ent_sub_angle.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     
     #instruction
     frm_sub_instruction = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
-    frm_sub_instruction.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_instruction.columnconfigure(1, weight=1, minsize=100)
     frm_sub_instruction.rowconfigure([0], weight=1, minsize=20)
     frm_sub_instruction.grid(column=0, row=1, sticky="nwse", padx=padding, pady=padding)
     ent_sub_instruction = tk.Label(
@@ -90,7 +90,7 @@ def add_new_step():
     
     #target_angle
     frm_sub_target_angle = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
-    frm_sub_target_angle.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_target_angle.columnconfigure(1, weight=1, minsize=100)
     frm_sub_target_angle.rowconfigure([0], weight=1, minsize=20)
     frm_sub_target_angle.grid(column=1, row=1, sticky="nwse", padx=padding, pady=padding)
     lbl_sub_target_angle = tk.Label(
@@ -100,13 +100,13 @@ def add_new_step():
     lbl_sub_target_angle.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
     ent_sub_target_angle = tk.Label(
         master=frm_sub_target_angle,
-        text=ent_target_angle.get()
+        text="{:.4f}".format(float(ent_target_angle.get()))
     )
     ent_sub_target_angle.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     
     #frontal_movement
     frm_sub_frontal_movement = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
-    frm_sub_frontal_movement.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_frontal_movement.columnconfigure(1, weight=1, minsize=100)
     frm_sub_frontal_movement.rowconfigure([0], weight=1, minsize=20)
     frm_sub_frontal_movement.grid(column=2, row=1, sticky="nwse", padx=padding, pady=padding)
     lbl_sub_frontal_movement = tk.Label(
@@ -116,13 +116,13 @@ def add_new_step():
     lbl_sub_frontal_movement.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
     ent_sub_frontal_movement = tk.Label(
         master=frm_sub_frontal_movement,
-        text=ent_frontal_movement.get()
+        text="{:.4f}".format(float(ent_frontal_movement.get()))
     )
     ent_sub_frontal_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     
     #lateral_movement
     frm_sub_lateral_movement = tk.Frame(master=frm_substep, width=50, height=50, bg="brown")
-    frm_sub_lateral_movement.columnconfigure(1, weight=1, minsize=20)
+    frm_sub_lateral_movement.columnconfigure(1, weight=1, minsize=100)
     frm_sub_lateral_movement.rowconfigure([0], weight=1, minsize=20)
     frm_sub_lateral_movement.grid(column=3, row=1, sticky="nwse", padx=padding, pady=padding)
     lbl_sub_lateral_movement = tk.Label(
@@ -132,7 +132,7 @@ def add_new_step():
     lbl_sub_lateral_movement.grid(column=0, row=0, sticky="nwse", padx=padding, pady=padding)
     ent_sub_lateral_movement = tk.Label(
         master=frm_sub_lateral_movement,
-        text=ent_lateral_movement.get()
+        text="{:.4f}".format(float(ent_lateral_movement.get()))
     )
     ent_sub_lateral_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     

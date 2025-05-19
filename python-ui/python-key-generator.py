@@ -9,6 +9,7 @@ lenght_rear = 0.095 #calculate 0.095
 lenght_front = 0.09 #calculate 0.09
 time_step = 0.01
 instruction = ''
+max_speed = 5
 
 def add_new_step():
     global iterator
@@ -136,10 +137,13 @@ def add_new_step():
     ent_sub_lateral_movement.grid(column=1, row=0, sticky="nwse", padx=padding, pady=padding)
     
     global instruction
-    instruction += listbox_movement.get()[0] + '-'
-    instruction += ent_speed.get() + '-'
-    instruction += ent_angle.get() + '-'
-    instruction += ent_time.get() + '/'
+    instruction += listbox_movement.get()[0] + ','
+    #speed handling
+    actual_speed = float(ent_speed.get())
+    speed_output = (255 / max_speed) * actual_speed
+    instruction += str(int(speed_output)) + ','
+    instruction += "{:.0f}".format(float(ent_angle.get())) + ','
+    instruction += "{:.4f}".format(float(ent_time.get())) + '/'
     
     ent_output.insert(tk.END, instruction)
     instruction = ''

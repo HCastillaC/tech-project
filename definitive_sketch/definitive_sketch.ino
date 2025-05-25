@@ -39,14 +39,14 @@ UltraSonicDistanceSensor distanceSensor(triggerPin, echoPin);
 const bool active_servo = false;
 
 //Instruction-keeping variables
+String current_instruction = "";
 char direction = 'H';
-unsigned long speed = 0;
-unsigned long angle = 90;
-unsigned long movement_duration = 0;
-unsigned long elapsed_time = 0;
-
-
-
+long int speed = 0;
+long int angle = 90;
+long int movement_duration = 0;
+double long elapsed_time = 0;
+long double ttime = 0;
+const unsigned int distance = 3;
 
 void setup() {
   // Used to display information
@@ -72,10 +72,15 @@ void loop() {
   elapsed_time = millis();
   if(elapsed_time >= movement_duration)
   {
+    if(ins == "")
+    {
+      motors.stop()
+      while(true) continue;
+    }
     //Read previous movement
     long int instruction_end = instruction.indexOf("/");
-    String current_instruction = instruction.substring(0, instruction_end);
-    instruction.remove(0, instruction_end);
+    current_instruction = instruction.substring(0, instruction_end);
+    instruction.remove(0, instruction_end + 1);
 
     //Read direction
     direction = current_instruction[0];
@@ -96,22 +101,21 @@ void loop() {
     current_instruction.remove(0, locator + 1);
     
     //Read time
-    long double ttime = current_instruction.toDouble() * 1000;
+    ttime = current_instruction.toDouble() * 1000;
 
     //Set new movement
     //Set speed
     if(speed >= 0) motors.forward();
     else motors.backward();
-    motors.setSpeed(speed);
+    motors.setSpeed(abs(speed));
     //Set angle
     servo.write(angle + 90);
     //Set the amount of time
     movement_duration += ttime;
   }
-  while(distanceSensor.measureDistanceCm() < 30 or instruction == "")
+  while(distanceSensor.measureDistanceCm() < distance)
   {
     motors.stop();
+    while(true) continue;
   }
-  if(direction == 'B') motors.backward();
-  else motors.forward();
 }

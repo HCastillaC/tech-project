@@ -44,9 +44,37 @@ char direction = 'H';
 long int speed = 0;
 long int angle = 90;
 long int movement_duration = 0;
-double long elapsed_time = 0;
-long double ttime = 0;
+ double elapsed_time = 0;
+double ttime = 0;
 const unsigned int distance = 3;
+
+void print_info()
+{
+    //cout << "ins: " << ins << endl;
+    Serial.print("\n\n\ninstruction:");
+    Serial.print(instruction);
+    //cout << "current_instruction: " << current_instruction << endl;
+    Serial.print("\ncurrent_instruction:");
+    Serial.print(current_instruction);
+    //cout << "direction: " << direction << endl;
+    Serial.print("\ndirection:");
+    Serial.print(direction);
+    //cout << "speed: " << speed << endl;
+    Serial.print("\nspeed:");
+    Serial.print(speed);
+    //cout << "angle: " << angle << endl;
+    Serial.print("\nangle:");
+    Serial.print(angle);
+    //cout << "ttime: " << ttime << endl;
+    Serial.print("\nttime:");
+    Serial.print(ttime);
+    //cout << "movement_duration: " << movement_duration << endl;
+    Serial.print("\nmovement_duration:");
+    Serial.print(movement_duration);
+    //cout << "elapsed_time: " << elapsed_time << endl;
+    Serial.print("\nelapsed_time:");
+    Serial.print(elapsed_time);
+}
 
 void setup() {
   // Used to display information
@@ -72,9 +100,9 @@ void loop() {
   elapsed_time = millis();
   if(elapsed_time >= movement_duration)
   {
-    if(ins == "")
+    if(instruction == "")
     {
-      motors.stop()
+      motors.stop();
       while(true) continue;
     }
     //Read previous movement
@@ -112,6 +140,7 @@ void loop() {
     servo.write(angle + 90);
     //Set the amount of time
     movement_duration += ttime;
+    print_info();
   }
   while(distanceSensor.measureDistanceCm() < distance)
   {

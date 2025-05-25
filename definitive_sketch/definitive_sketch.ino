@@ -81,10 +81,7 @@ void setup() {
   Serial.begin(9600);
 
   // Wait for Serial Monitor to be opened
-  while (!Serial)
-  {
-    //do nothing
-  }
+  delay(2500);
   //Initialize motors
   motors.setSpeed(0); //Remember it's a 0-255 range
   motors.forward();
